@@ -45,6 +45,24 @@ for feature in feature_names:
     value = st.number_input(f"Enter {feature}", min_value=0.0, step=1.0)
     user_inputs.append(value)
 
+st.markdown(
+    """
+    <style>
+    div.stButton > button {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # When user clicks the button
 if st.button("Predict"):
     try:
