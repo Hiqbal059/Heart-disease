@@ -10,9 +10,11 @@ from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 import joblib
 import streamlit as st
+import matplotlib.pyplot as plt
 
 # Load your trained model (replace 'model.pkl' with your model's file name)
 best_model = joblib.load('resource/model.pkl')
+
 
 # Function to predict heart disease
 def predict_heart_disease(features):
@@ -23,6 +25,9 @@ def predict_heart_disease(features):
 
 # Streamlit app layout
 st.title("Heart Disease Predictor")
+
+col1, col_space, col2 = st.columns([1.5, 0.5, 1.5])  # Added a middle column for space
+
 
 # Define the features
 feature_names = ['Age', 
@@ -40,34 +45,50 @@ feature_names = ['Age',
                  'Thal: 0 = normal, 1 = fixed defect, 2 = reversible defect']
 
 # Collect user inputs
-user_inputs = []
-for feature in feature_names:
-    value = st.number_input(f"Enter {feature}", min_value=0.0, step=1.0)
-    user_inputs.append(value)
+with col1:
+    user_inputs = []
+    for feature in feature_names:
+        value = st.number_input(f"Enter {feature}", min_value=0.0, step=1.0)
+        user_inputs.append(value)
 
-st.markdown(
-    """
-    <style>
-    div.stButton > button {
-        width: 100%;
-        background-color: #4CAF50;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+    st.markdown(
+        """
+        <style>
+        div.stButton > button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-# When user clicks the button
-if st.button("Predict"):
-    try:
-        # Predict the probability
-        probability = predict_heart_disease(user_inputs)
-        st.success(f"Heart Disease Probability: {probability:.2f}%")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+    # When user clicks the button
+    if st.button("Predict"):
+        try:
+            # Predict the probability
+            probability = predict_heart_disease(user_inputs)
+            st.success(f"Heart Disease Probability: {probability:.2f}%")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+
+with col2:
+    if 'probability' in locals():
+        # Create a bar chart of probability
+        fig, ax = plt.subplots()
+        labels = ['No Heart Disease', 'Heart Disease']
+        probs = [100 - probability, probability]
+        ax.bar(labels, probs, color=['green', 'red'])
+        ax.set_ylim([0, 100])
+        ax.set_title("Heart Disease Prediction Probability")
+        ax.set_ylabel("Probability (%)")
+        
+        # Display the chart in Streamlit
+        st.pyplot(fig)
